@@ -1,6 +1,6 @@
 import numpy as np
 class myperceptron():
-    """Perceptron Classifie 应用在二分类上"""
+    """Perceptron Classifie 应用在二分类上.此代码实现了感知器算法的对偶形式"""
     def __init__(self, eta=0.01, n_iter=10):
         self.eta = eta
         self.n_iter = n_iter
