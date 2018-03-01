@@ -32,5 +32,5 @@ class AdalineGD(object):
         return self.net_input(X)
 
     def predict(self, X):
-        '''返回量化结果，class label'''
+        '''返回根据激励函数返回值的量化结果，class label'''
         return np.where(self.activation(X)>=0,1,-1)
