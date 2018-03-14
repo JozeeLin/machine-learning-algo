@@ -57,8 +57,8 @@ class myLogisticRegression():
         return self
 
     def predict_OvR(self, X):
-        result = predict_proba_OvR(self,X)[0]
-        return np.array(result)
+        result = self.predict_proba_OvR(X)[:,0]
+        return result.ravel()
 
     def predict_proba_OvR(self, X):
         m = X.shape[0]
