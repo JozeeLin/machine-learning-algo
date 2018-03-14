@@ -36,5 +36,38 @@ class myLogisticRegression():
     def sigmoid(self, z):
         return 1/(1+np.exp(z))
 
+    def fit_OvR(self, X, y):
+        m, n = X.shape
+        labels = np.unique(y)
+        num_labels = len(labels)
 
+        self.all_theta = np.zeros((n+1, num_labels))
 
+        #label encoding
+        class_y = np.zeros((m, num_labels))
+        for i in range(num_labels):
+            class_y[:, i] = np.int32(y == i).reshape(1, -1)
+
+        #使用二分类LR算法计算出对应的theta值
+        for i in range(num_labels):
+            self.fit(X, class_y[:, i])
+            self.all_theta[:, i] = self.w_
+
+        self.all_theta = self.all_theta.T
+        return self
+
+    def predict_OvR(self, X):
+        result = predict_proba_OvR(self,X)[0]
+        return np.array(result)
+
+    def predict_proba_OvR(self, X):
+        m = X.shape[0]
+        h = self.sigmoid(np.dot(X, self.all_theta.T[1:, :])+self.all_theta.T[0, :])
+
+        h_max = np.max(h, axis=1)
+        result = []
+        for i in np.arange(0, m):
+            t = np.where(h[i, :] == h_max[i])[0].ravel()[0]
+            result.append((t,h_max[i]))
+
+        return np.array(result)
