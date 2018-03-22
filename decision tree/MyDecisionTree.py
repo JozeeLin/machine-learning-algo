@@ -6,6 +6,7 @@ import operator
 class MyDTree():
     """
     reference：《统计学习方法》
+    没有实现剪枝
     implement ID3 algorithm
     """
     def __init__(self):
