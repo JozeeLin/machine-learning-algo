@@ -92,6 +92,40 @@ $$
 现推导如下：
 $$
 \begin{align*}
-
+\frac{1}{N}\sum_{i}\exp(-y_if(x_i)) &= \frac{1}{N}\sum_{i}\left(-\sum_{m=1}{M}\alpha_my_iG_m(x_i)\right) \\
+&= \sum_{i}w_{1i}\prod_{m=1}^{M}\exp(-\alpha_m y_i G_m(x_i)) \\
+&= Z_1\sum_{i}w_{2i}\prod_{m=2}^{M}\exp(-\alpha_m y_i G_m(x_i)) \\
+&= Z_1Z_2\sum_{i}w_{3i}\prod_{m=3}^{M}\exp(-\alpha_m y_i G_m(x_i)) \\
+&= \dots \\
+&= Z_1Z_2\dots Z_{M-1} \sum_{i}w_{Mi}\exp (-\alpha_M y_i G_M(x_i)) \\
+&= \prod_{m=1}^{M}Z_m
 \end{align*}
 $$
+
+这一定理说明，可以在每一轮选取适当的$G_m$使得$Z_m$最小，从而使训练误差下降最快。对二类分类问题，有如下结果：
+$$
+\prod_{m=1}^{M}Z_m = \prod_{m=1}^{M}[2\sqrt{e_m(1-e_m)}] = \prod_{m=1}^{M}\sqrt{(1-4\gamma_m^2)} \leq \exp(-2\sum_{m=1}^{M}\gamma_m^2)
+$$
+这里，$\gamma_m = \frac{1}{2}-e_m$。
+
+**证明:**由$Z_m$的定义式以及分类误差率$e_m$得：
+$$
+\begin{align*}
+Z_m &= \sum_{i=1}^{N}w_{mi}\exp(-\alpha_m y_i G_m(x_i)) \\
+&= \sum_{y_i=G_m(x_i)} w_{mi}e^{-\alpha_m} + \sum_{y_i \neq G_m(x_i)}w_{mi}e^{\alpha_m} \\
+&= (1-e_m)e^{-\alpha_m} + e_m e^{\alpha_m} \\
+&= 2\sqrt{e_m(1-e_m)} = \sqrt{1-4\gamma_m^2}
+\end{align*}
+$$
+至于不等式
+$$
+\prod_{m=1}^{M}\sqrt{(1-4\gamma_m^2)} \leq \exp(-2\sum_{m=1}^{M}\gamma_m^2)
+$$
+则可先由$e^x$和$\sqrt{1-x}$在点$x=0$的泰勒展开式推出不等式$\sqrt{(1-4\gamma_m^2)} \leq \exp(-2\gamma_m^2)$，进而得到以下推论：
+
+如果存在$\gamma > 0$，对所有m有$\gamma_m \geq \gamma$，则：
+$$
+\frac{1}{N} \sum_{i=1}^{N}I(G(x_i) \neq y_i) \leq \exp(-2M\gamma^2)
+$$
+这表明在此条件下，AdaBoost的训练误差是以指数速率下降的。
+
