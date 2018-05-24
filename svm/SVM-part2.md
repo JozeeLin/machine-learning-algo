@@ -16,9 +16,11 @@ $$
 
 令$X,Z \in R^n$，$K(X,Z) = (X^TZ)^2$:
 $$
-K(X,Z) = (\sum_{i=1}^{n}x_iz_i)(\sum_{j=1}^{n}x_jz_j) \\
-= \sum_{i=1}^{n}\sum_{j=1}^{n}x_ix_jz_iz_j \\
-= \sum_{i,j=1}^{n}(x_ix_j)(z_iz_j)
+\begin{align*}
+K(X,Z) &= (\sum_{i=1}^{n}x_iz_i)(\sum_{j=1}^{n}x_jz_j) \\
+&= \sum_{i=1}^{n}\sum_{j=1}^{n}x_ix_jz_iz_j \\
+&= \sum_{i=1}^{n}\sum_{j=1}^{n}(x_ix_j)(z_iz_j)
+\end{align*}
 $$
 使用前面的定义$K(X,Z)=\phi(X)\phi(Z)$，假设$X=[x_1,x_2,x_3]^T$，那么$\phi(X) = [x_1x_1,x_1x_2,x_1x_3,x_2x_1,x_2x_2,x_2x_3,x_3x_1,x_3x_2,x_3x_3]^T$。注意，这里计算$\phi(X)$的时间复杂度为$O(N^2)$，而$K(X,Z)$的时间复杂度为$O(N)$。
 
