@@ -91,7 +91,7 @@ EM算法通过迭代求对数似然函数的极大似然估计。每次迭代包
    &= \sum_Z \log P(Y,Z|\theta)P(Z|Y,\theta^i)
    \end{align*}
    $$
-   这里，$P(Z|Y,\theta^i)$是在给定观测数据Y和当前的参数估计$\theta^i$下隐变量数据Z的条件概率分布;
+   这里，$P(Z|Y,\theta^i)​$是在给定观测数据Y和当前的参数估计$\theta^i​$下隐变量数据Z的条件概率分布;
 
 3. M-step:求使$Q(\theta,\theta^i)$极大化的$\theta$，确定第i+1次迭代的参数的估计值$\theta^{i+1}$
    $$
@@ -140,8 +140,8 @@ $$
 $$
 \begin{aligned}
 L(\theta) - L(\theta^i) &= \log \left( \sum_Z P(Y|Z,\theta)P(Z|\theta) \right) - \log P(Y|\theta^i) \\
-&= \log \left( \sum_Z P(Y|Z,\theta^i) \frac{P(Y|Z,\theta)P(Z|\theta)}{P(Y|Z,\theta^i)} \right) - \log P(Y|\theta^i) \\
-&\geq \sum_Z P(Z|Y,\theta^i) \log \frac{P(Y|Z,\theta)P(Z|\theta)}{p(Y|Z,\theta^i)} - \log P(Y|\theta^i) \\
+&= \log \left( \sum_Z P(Z|Y,\theta^i) \frac{P(Y|Z,\theta)P(Z|\theta)}{P(Z|Y,\theta^i)} \right) - \log P(Y|\theta^i) \\
+&\geq \sum_Z P(Z|Y,\theta^i) \log \frac{P(Y|Z,\theta)P(Z|\theta)}{p(Z|Y,\theta^i)} - \log P(Y|\theta^i) \\
 &= \sum_Z P(Z|Y,\theta^i) \log \frac{P(Y|Z,\theta)P(Z|\theta)}{P(Z|Y,\theta^i)P(Y|\theta^i)}
 \end{aligned}
 $$
@@ -177,7 +177,106 @@ $$
 
 请参阅统计学习方法
 
-## EM算法在高斯混合模型学习中的应用
+## EM算法的推广
 
+EM算法还可以解释为**F函数(F function)**的极大-极大算法(maximization-maximization algorithm).
 
+### F函数的极大-极大算法
 
+**F函数**:假设**隐变量数据Z的概率分布为$\widetilde{P}(Z)$,**定义分布$\widetilde{P}$与参数$\theta$的函数$F(\widetilde{P},\theta)$如下:
+$$
+F(\widetilde{P},\theta) = E_\widetilde{P} [\log P(Y,Z|\theta)] + H(\widetilde{P})
+$$
+称为F函数,式中$H(\widetilde{P}) = - E_{\widetilde{P}} \log \widetilde{P}(Z)$是分布$\widetilde{P}(Z)$的熵.F函数可表示成如下形式:
+$$
+F(\widetilde{P},\theta) = \sum_Z \widetilde{P}(Z) \log P(Y,Z|\theta) - \sum_Z \widetilde{P}(Z) \log \widetilde{P}(Z)
+$$
+1.对于固定的$\theta​$,存在唯一的分布$\widetilde{P}_\theta​$极大化F函数,这时:
+$$
+\widetilde{P}_\theta(Z) = P(Z|Y,\theta) \tag{3}
+$$
+并且$\widetilde{P}_\theta$随$\theta$连续变化.
+
+构建拉格朗日式子:
+$$
+L = F(\widetilde{P},\theta) + \lambda(1-\sum_Z\widetilde{P}(Z))
+$$
+对上式的$\widetilde{P}$求偏导数:
+$$
+\frac{\partial L}{\partial \widetilde{P}(Z)} = \log P(Y,Z|\theta) - \log P(Z) - 1 - \lambda
+$$
+令偏导数为0,得出:
+$$
+\frac{P(Y,Z|\theta)}{\widetilde{P}_\theta(Z)} = e^{1+\lambda}
+$$
+在从约束条件$\sum_Z \widetilde{P}_\theta(Z) = 1$得到结论公式(3)
+
+2.由公式(3),可得:
+$$
+\begin{aligned}
+F(\widetilde{P},\theta) &= \sum_Z \widetilde{P}(Z) \log P(Y,Z|\theta) - \sum_Z \widetilde{P}(Z) \log \widetilde{P}(Z) \\
+&= \sum_Z P(Z|Y,\theta) \log \frac{P(Y,Z|\theta)}{P(Z|Y,\theta)} \\
+&= \sum_Z P(Z|Y,\theta) \log P(Y|\theta) \\
+&= \log P(Y|\theta) \sum_Z P(Z|Y,\theta) \\
+&= \log P(Y|\theta)
+\end{aligned}
+$$
+
+### GEM算法
+
+#### GEM算法1
+
+直接求使Q函数极大化的$\theta$.
+
+1. 初始化参数$\theta^0$,开始迭代
+2. 第i+1次迭代,第一步:记$\theta^i$为参数$\theta$的估计值,$\widetilde{P}^i$为函数$\widetilde{P}$的估计.求$\widetilde{P}^{i+1}$使$\widetilde{P}$极大化$F(\widetilde{P},\theta^i)$
+3. 第二步:求$\theta^{i+1}$使$F(\widetilde{P}^{i+1},\theta)$极大化
+4. 重复2和3直到收敛
+
+算法1中,有时求$Q(\theta,\theta^i)$的极大化很难,在算法2和算法3中改变策略,求$\theta^{i+1}$使得$Q(\theta^{i+1},\theta^i) > Q(\theta^i,\theta^i)$.
+
+#### GEM算法2
+
+1. 初始化参数$\theta^0$,开始迭代
+
+2. 第i+1次迭代,第一步:记$\theta^i$为参数$\theta$的估计值,计算
+   $$
+   \begin{align*}
+   Q(\theta,\theta^i) &= E_Z[\log P(Y,Z|\theta)|Y,\theta^i] \\
+   &= \sum_Z \log P(Y,Z|\theta)P(Z|Y,\theta^i)
+   \end{align*}
+   $$
+
+3. 第二步:求$\theta^{i+1}​$使
+   $$
+   Q(\theta^{i+1},\theta^i) > Q(\theta^i,\theta^i)
+   $$
+
+4. 重复2和3,直到收敛
+
+当参数$\theta$的维数为d(d>=2)时,可采用一种特殊的GEM算法,它将EM算法的M步分解为d次条件极大化,**每次只改变参数向量的一个分量**,其余分量不改变.
+
+### GEM算法3(参数维度大于1)
+
+1. 初始化参数$\theta^0=(\theta_1^0,\theta_2^0,...,\theta_d^0)$,开始迭代
+
+2. 第i+1次迭代,第一步:记$\theta^i = (\theta_1^i,\theta_2^i,...,\theta_d^i)$为参数$\theta=(\theta_1,\theta_2,...,\theta_d)$的估计值,计算
+   $$
+   \begin{align*}
+   Q(\theta,\theta^i) &= E_Z[\log P(Y,Z|\theta)|Y,\theta^i] \\
+   &= \sum_Z \log P(Y,Z|\theta)P(Z|Y,\theta^i)
+   \end{align*}
+   $$
+
+3. 第二步:进行d次条件极大化:
+
+   首先,在$\theta_2^i,...,\theta_k^i$保持不变的条件下求使Q函数达到极大的$\theta_1^{i+1}$.
+
+   然后,在$\theta_1=\theta_1^{i+1},\theta_j=\theta_j^i, j=3,4,...,k$的条件下求使Q函数达到极大的$\theta_2^{i+1}$
+
+   如此继续,经过d次条件极大化,得到$\theta^{i+1} = (\theta_1^{i+1},\theta_2^{i+1},...,\theta_d^{i+1})$使得
+   $$
+   Q(\theta^{i+1},\theta^i) > Q(\theta^i,\theta^i)
+   $$
+
+4. 重复2和3,直到收敛.
